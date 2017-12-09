@@ -84,7 +84,6 @@ cd exchange_integral(int m, int k, int kappa)
   {
     for(int i_prime=0; i_prime<unitcell_point.size(); i_prime++)
       trapez_sum+= exchange_core_integrand(m,k,kappa,i,i_prime);
-    // cout << i << " " << trapez_sum.real() << endl;
   }
   return trapez_sum;
 }
@@ -120,27 +119,6 @@ int main()
   }
 
 
-  // ofstream ukout("umk.txt");
-  // cout << arr[0].at(0).first << endl;
-  // for(int i=0; i<unitcell_point.size(); i++)
-  // {
-  //   ukout << unitcell_point(i) << " " << sqrt(norm(u(0,0,i))) << " " << u(0,0,i) << endl;
-  // }
-  //
-
- //  ofstream fout("debug_exchange.txt");
- // for(int xprime=0; xprime < unitcell_point.size(); xprime++)
- //  fout << unitcell_point(xprime) << " " << exchange_core_integrand(0,1,2,3,xprime).real() << endl;
- //
- //  cout << exchange_integral(0,1,2) << endl;
- //
- //  exit(10);
-
-  // double k1,k2; cin >> k1 >> k2;
-  // cout << direct_integral(k1,k2) << endl;
-  // cout << exchange_integral(k1,k2) << endl;
-  // cout << exchange_integral(0,5,6) << " " << exchange_integral(0,6,5) << endl; exit(1);
-
   MatrixXd correction= MatrixXd::Zero(N,3);
 
   for(int m=0; m<3; m++)
@@ -166,11 +144,3 @@ int main()
 
   return 0;
 }
-
-
-// for(int n=0; n<N; n++)
-// {
-//   dataout << (2*M_PI*n)/(N*a)-M_PI/a << " ";
-//   for(int i=0; i<5; i++) dataout << arr[n].at(i).first << " ";
-//   dataout << endl;
-// }

@@ -13,7 +13,7 @@ using namespace std::literals;
 typedef complex<double> cd;
 typedef vector < pair<double,VectorXcd> > spectrum;
 
-int no_of_unitcell_pts=20;
+int no_of_unitcell_pts=50;
 double a = 1;
 double dx = a/double(no_of_unitcell_pts);
 int N = 20; //no of unit cells
@@ -32,49 +32,49 @@ double Sqr(cd x){return (x*conj(x)).real();}
 bool compare(const pair<double, VectorXcd>&i, const pair<double, VectorXcd>&j) {return i.first < j.first;}
 cd u(int m, int k, int i) { return arr[k].at(m).second(i%N);}
 
-double direct_core_integrand(int k, int kappa, int i, int i_prime)
+double direct_core_integrand(int m, int k, int kappa, int i, int i_prime)
 {
-  return norm(u(0,kappa,i_prime))/(abs(lattice_point(i)-lattice_point(i_prime))+epsilon);
+  return norm(u(m,kappa,i_prime))/(abs(lattice_point(i)-lattice_point(i_prime))+epsilon);
 }
 
-double direct_integral_prime(int k, int kappa, int i)
+double direct_integral_prime(int m, int k, int kappa, int i)
 {
   double trapez_sum=0.0;
-  double fa= direct_core_integrand(k,kappa,i,0)/2.0;
-  double fb= direct_core_integrand(k,kappa,i,lattice_point.size()-1)/2.0;
-  for(int i_prime=1; i_prime < lattice_point.size()-1; i_prime++) trapez_sum+= direct_core_integrand(k,kappa,i,i_prime);
-  return norm(u(0,kappa,i))*(trapez_sum+fb+fa);
+  double fa= direct_core_integrand(m,k,kappa,i,0)/2.0;
+  double fb= direct_core_integrand(m,k,kappa,i,lattice_point.size()-1)/2.0;
+  for(int i_prime=1; i_prime < lattice_point.size()-1; i_prime++) trapez_sum+= direct_core_integrand(m,k,kappa,i,i_prime);
+  return norm(u(m,k,i))*(trapez_sum+fb+fa);
 }
 
-double direct_integral(int k, int kappa)
+double direct_integral(int m, int k, int kappa)
 {
-  double fa= direct_integral_prime(k,kappa,0)/2.0;
-  double fb= direct_integral_prime(k,kappa,lattice_point.size()-1)/2.0;
+  double fa= direct_integral_prime(m,k,kappa,0)/2.0;
+  double fb= direct_integral_prime(m,k,kappa,lattice_point.size()-1)/2.0;
   double trapez_sum=0.0;
-  for(int i=1; i< lattice_point.size()-1; i++) trapez_sum+= direct_integral_prime(k,kappa,i);
+  for(int i=1; i< lattice_point.size()-1; i++) trapez_sum+= direct_integral_prime(m,k,kappa,i);
   return (trapez_sum+fb+fa);
 }
 
-cd exchange_core_integrand(int k, int kappa, int i, int i_prime)
+cd exchange_core_integrand(int m, int k, int kappa, int i, int i_prime)
 {
-  return conj(u(0,k,i_prime))*u(0,kappa,i_prime)*exp(cd(0,(k-kappa)*(lattice_point(i)-lattice_point(i_prime))))/(abs(lattice_point(i)-lattice_point(i_prime))+epsilon);
+  return conj(u(m,k,i_prime))*u(m,kappa,i_prime)*exp(cd(0,(k-kappa)*(lattice_point(i)-lattice_point(i_prime))))/(abs(lattice_point(i)-lattice_point(i_prime))+epsilon);
 }
 
-cd exchange_integral_prime(int k, int kappa, int i)
+cd exchange_integral_prime(int m, int k, int kappa, int i)
 {
   cd trapez_sum=cd(0,0);
-  cd fa= exchange_core_integrand(k,kappa,i,0)/2.0;
-  cd fb= exchange_core_integrand(k,kappa,i,lattice_point.size()-1)/2.0;
-  for(int i_prime=1; i_prime < lattice_point.size()-1; i_prime++) trapez_sum+= exchange_core_integrand(k,kappa,i,i_prime);
-  return conj(u(0,kappa,i))*u(0,k,i)*(trapez_sum+fb+fa);
+  cd fa= exchange_core_integrand(m,k,kappa,i,0)/2.0;
+  cd fb= exchange_core_integrand(m,k,kappa,i,lattice_point.size()-1)/2.0;
+  for(int i_prime=1; i_prime < lattice_point.size()-1; i_prime++) trapez_sum+= exchange_core_integrand(m,k,kappa,i,i_prime);
+  return conj(u(m,kappa,i))*u(m,k,i)*(trapez_sum+fb+fa);
 }
 
-cd exchange_integral(int k, int kappa)
+cd exchange_integral(int m, int k, int kappa)
 {
-  cd fa= exchange_integral_prime(k,kappa,0)/2.0;
-  cd fb= exchange_integral_prime(k,kappa,lattice_point.size()-1)/2.0;
+  cd fa= exchange_integral_prime(m,k,kappa,0)/2.0;
+  cd fb= exchange_integral_prime(m,k,kappa,lattice_point.size()-1)/2.0;
   cd trapez_sum=cd(0,0);
-  for(int i=1; i< lattice_point.size()-1; i++) trapez_sum+= exchange_integral_prime(k,kappa,i);
+  for(int i=1; i< lattice_point.size()-1; i++) trapez_sum+= exchange_integral_prime(m,k,kappa,i);
   return (trapez_sum+fb+fa);
 }
 
@@ -147,12 +147,17 @@ int main()
   VectorXd correction= VectorXd::Zero(N);
   for(int i=0; i<N; i++)
   {
+    // cout << "Correction for k= " << i << endl;
+    // cout << "=====================================\n";
+
     for(int j=0; j<N; j++)
     {
       if(i==j) continue;
-      correction(i) += 2*direct_integral(i,j)-exchange_integral(i,j).real();
+      double vd = 1/(4*M_PI)*direct_integral(0,i,j);  cd ve = 1/(4*M_PI)*exchange_integral(0,i,j);
+      correction(i) += 2*vd-ve.real();
+      // cout << "For " << j << ": direct=" << vd << ", exchange =" << ve.real() << ", correction=" << correction(i) << endl;
     }
-    cout << "k= " << i << " done" << endl;
+    cout << "k= " << i << " done" << endl << endl;
   }
 
   for(int i=0; i<N; i++)

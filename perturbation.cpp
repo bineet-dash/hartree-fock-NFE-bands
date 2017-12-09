@@ -147,22 +147,18 @@ int main()
   VectorXd correction= VectorXd::Zero(N);
   for(int i=0; i<N; i++)
   {
-    // cout << "Correction for k= " << i << endl;
-    // cout << "=====================================\n";
-
     for(int j=0; j<N; j++)
     {
       if(i==j) continue;
       double vd = 1/(4*M_PI)*direct_integral(0,i,j);  cd ve = 1/(4*M_PI)*exchange_integral(0,i,j);
       correction(i) += 2*vd-ve.real();
-      // cout << "For " << j << ": direct=" << vd << ", exchange =" << ve.real() << ", correction=" << correction(i) << endl;
     }
     cout << "k= " << i << " done" << endl << endl;
   }
 
   for(int i=0; i<N; i++)
   {
-    dataout << (2*M_PI*i)/(N*a)-M_PI/a << " " << correction(i) << endl;
+    dataout << (2*M_PI*i)/(N*a)-M_PI/a << " " << arr[i].at(0).first << " " << arr[i].at(0).first+correction(i) << endl;
   }
 
   return 0;

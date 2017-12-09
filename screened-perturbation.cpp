@@ -22,10 +22,11 @@ double init_pt= 0.0;
 double final_pt = 10.0;
 double A=1;
 double epsilon = dx/2;
+double lambda = 0.3;
 
 spectrum* arr = new spectrum [N];
 VectorXd unitcell_point;
-ofstream dataout("data_perturb.txt");
+ofstream dataout("data_perturb_screened.txt");
 
 double V(double x){return -A*(1+cos(2*M_PI*x/a));}
 bool compare(const pair<double, VectorXcd>&i, const pair<double, VectorXcd>&j) {return i.first < j.first;}
@@ -55,7 +56,7 @@ bool diagonalize(MatrixXcd A, VectorXcd& lambda, MatrixXcd& v)
 
 double direct_core_integrand(int m, int k, int kappa, int i, int i_prime)
 {
-  return 1/(4*M_PI)*norm(u(m,k,i))*norm(u(m,kappa,i_prime))/(abs(unitcell_point(i)-unitcell_point(i_prime))+epsilon);
+  return 1/(4*M_PI)*exp(-lambda*abs(unitcell_point(i)-unitcell_point(i_prime)))*norm(u(m,k,i))*norm(u(m,kappa,i_prime))/(abs(unitcell_point(i)-unitcell_point(i_prime))+epsilon);
 }
 
 double direct_integral(int m, int k, int kappa)
@@ -73,7 +74,7 @@ cd exchange_core_integrand(int m, int k, int kappa, int i, int i_prime)
 {
   cd num = conj(u(m,kappa,i))*u(m,kappa,i_prime)*conj(u(m,k,i_prime))*u(m,k,i)*exp(cd(0,(k-kappa)*(unitcell_point(i)-unitcell_point(i_prime))));
   cd denom = (abs(unitcell_point(i)-unitcell_point(i_prime))+epsilon);
-  return 1/(4*M_PI)*num/denom;
+  return 1/(4*M_PI)*exp(-lambda*abs(unitcell_point(i)-unitcell_point(i_prime)))*num/denom;
 }
 
 cd exchange_integral(int m, int k, int kappa)

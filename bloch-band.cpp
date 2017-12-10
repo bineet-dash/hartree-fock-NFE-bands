@@ -78,13 +78,6 @@ int main()
       H(i,i)= cd(1/(dx*dx)+ pow(k,2)/2+ V(point(i)), 0);
     }
 
-    // cout << H << endl;
-    // cout << endl << point.transpose() << endl;
-
-
-    // ComplexEigenSolver <MatrixXcd> ces; ces.compute(H);
-    // eigenvalues = ces.eigenvalues().real(); eigenvalues.resize(5);
-
     diagonalize(H,v,eigenvectors);
     eigenvalues = sortascending(v.real());
 
@@ -93,9 +86,3 @@ int main()
 
   return 0;
 }
-
-
-// eigenspectrum.clear();
-// for(int i=0; i<point.size(); i++)  eigenspectrum.push_back(make_pair(ces.eigenvalues()[i].real(), ces.eigenvectors().col(i)));
-// sort(eigenspectrum.begin(),eigenspectrum.end(),compare);
-// eigenspectrum.resize(5);

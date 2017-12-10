@@ -22,7 +22,8 @@ double init_pt= 0.0;
 double final_pt = 10.0;
 double A=1;
 double epsilon = dx/2;
-double lambda = 0.3;
+double electron_density = 2/a;
+double lambda,Ef;
 
 spectrum* arr = new spectrum [N];
 VectorXd unitcell_point;
@@ -118,6 +119,9 @@ int main()
 
   }
 
+  Ef = arr[0].at(0).first; //Fermi Energy
+  lambda = sqrt(3*electron_density/(2*Ef));
+  cout << "lambda = " << lambda << endl;
 
   MatrixXd correction= MatrixXd::Zero(N,3);
 
